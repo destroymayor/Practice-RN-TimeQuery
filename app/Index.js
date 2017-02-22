@@ -4,6 +4,10 @@ import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import Button from 'apsl-react-native-button';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import DateTimePickerTime from 'react-native-modal-datetime-picker';
+import Picker from 'react-native-picker';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import StationCode from './StationCode';
+
 
 export default class Index extends Component {
     constructor(props) {
@@ -16,11 +20,16 @@ export default class Index extends Component {
             isDateTimePickerVisible: false,
             isDateTimePickerTimeVisible: false,
             DateTimePickerMode: 'date',
-            fromstation: '1810',
-            tostation: '1809',
+            fromstationName: '【臺北】',
+            tostationName: '【萬華】',
+            fromstation: '1008',
+            tostation: '1009',
         }
 
         this.onPress = this.onPress.bind(this);
+        this.showPickerFromstation = this.showPickerFromstation.bind(this);
+        this.showPickertostation = this.showPickertostation.bind(this);
+        this.exchange = this.exchange.bind(this);
     }
 
     hideDateTimePicker = () => this.setState({
@@ -45,30 +54,81 @@ export default class Index extends Component {
         this.hideDateTimePicker()
     }
 
+    exchange() {
+        this.setState({
+         fromstationName: this.state.tostationName,
+         fromstation: this.state.tostation,
+          tostationName: this.state.fromstationName,
+         tostation:this.state.fromstation
+        });
+        console.log('互換後', '起=' + this.state.fromstationName, this.state.fromstation, '迄=' + this.state.tostationName, this.state.tostation);
+    }
+
     onPress() {
         this.props.navigator.push({
             id: 1,
             params: {
-                SelectUrl: 'http://www.madashit.com/api/get-Tw-Railway?date=' + this.state.Dates + '&fromstation=' + this.state.fromstation + '&tostation=' + this.state.tostation + '&fromtime=' + this.state.Hours + this.state.Minutes + '&totime=2359'
+                SelectUrl: 'http://www.madashit.com/api/get-Tw-Railway?date=' + this.state.Dates + '&fromstation=' + this.state.fromstation + '&tostation=' + this.state.tostation + '&fromtime=' + this.state.Hours + this.state.Minutes + '&totime=2359',
+                fromstationName: this.state.fromstationName,
+                tostationName: this.state.tostationName
             }
         });
+        Picker.hide();
+    }
+
+    showPickerFromstation() {
+        Picker.init({
+            pickerData: StationCode,
+            selectedValue: [2, 1],
+            pickerConfirmBtnText: '確定',
+            pickerCancelBtnText: '取消',
+            pickerTitleText: '請選擇起站',
+            pickerConfirmBtnColor: [49, 151, 252, 5],
+            pickerCancelBtnColor: [49, 151, 252, 5],
+            pickerToolBarBg: [230, 230, 230, 5],
+            pickerBg: [0, 0, 0, 0],
+            onPickerConfirm: data => {
+                console.log("起站",data[1].split('-', 1), data[1].slice(5));
+                this.setState({
+                    fromstationName: data[1].slice(5),
+                    fromstation: data[1].split('-', 1)
+                });
+            },
+            onPickerCancel: data => {
+            },
+            onPickerSelect: data => {
+            }
+        });
+        Picker.show();
+    }
+
+    showPickertostation() {
+        Picker.init({
+            pickerData: StationCode,
+            selectedValue: [2, 1],
+            pickerConfirmBtnText: '確定',
+            pickerCancelBtnText: '取消',
+            pickerTitleText: '請選擇迄站',
+            pickerConfirmBtnColor: [49, 151, 252, 5],
+            pickerCancelBtnColor: [49, 151, 252, 5],
+            pickerToolBarBg: [230, 230, 230, 5],
+            pickerBg: [0, 0, 0, 0],
+            onPickerConfirm: data => {
+                console.log("迄站",data[1].split('-', 1), data[1].slice(5));
+                this.setState({
+                    tostationName: data[1].slice(5),
+                    tostation: data[1].split('-', 1)
+                });
+            },
+            onPickerCancel: data => {
+            },
+            onPickerSelect: data => {
+            }
+        });
+        Picker.show();
     }
 
     render() {
-        let index = 0;
-        const data = [{
-            key: index++,
-            label: 'Red'
-        }, {
-            key: index++,
-            label: 'Red1'
-        }, {
-            key: index++,
-            label: 'Red2'
-        }, {
-            key: index++,
-            label: 'Red3'
-        },]
         return (
             <View style={ styles.IndexView }>
               <DateTimePicker isVisible={ this.state.isDateTimePickerVisible } is24Hour={ true } date={ new Date() } titleIOS="請選擇日期" cancelTextIOS="取消" confirmTextIOS="確定" onConfirm={ this.handleDatePicked }
@@ -82,20 +142,24 @@ export default class Index extends Component {
               <View style={ styles.SelectStop }>
                 <View style={ styles.SelectStopView }>
                   <Text style={ { fontSize: 17, color: '#2894ff', marginBottom: 10 } }>起站</Text>
-                  <Button style={ styles.SelectStopButton }>
-                    <Text>起站</Text>
+                  <Button style={ styles.SelectStopButton } onPress={ this.showPickerFromstation }>
+                    <Text>
+                      { this.state.fromstationName }
+                    </Text>
                   </Button>
                 </View>
                 <View style={ styles.SelectStopView }>
                   <Text style={ { fontSize: 17, color: '#2894ff', marginBottom: 10 } }>互換</Text>
-                  <Button style={ { width: 50, backgroundColor: '#fff', borderRadius: 3, borderColor: '#e0e0e0' } }>
-                    <Text>↔</Text>
+                  <Button style={{ width: 50, backgroundColor: '#ffffff', borderRadius: 3, borderColor: '#ffffff' }} onPress={this.exchange}>
+                   <Icon name="refresh" size={20} color="#2894ff" />
                   </Button>
                 </View>
                 <View style={ styles.SelectStopView }>
                   <Text style={ { fontSize: 17, color: '#2894ff', marginBottom: 10 } }>迄站</Text>
-                  <Button style={ styles.SelectStopButton }>
-                    <Text>迄站</Text>
+                  <Button style={ styles.SelectStopButton } onPress={ this.showPickertostation }>
+                    <Text>
+                      { this.state.tostationName }
+                    </Text>
                   </Button>
                 </View>
               </View>
@@ -149,6 +213,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         height: 55,
+        marginBottom:20
     },
     SelectStop: {
         justifyContent: 'center',
