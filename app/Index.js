@@ -1,50 +1,47 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import Button from 'apsl-react-native-button';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import DateTimePickerTime from 'react-native-modal-datetime-picker';
 
 export default class Index extends Component {
     constructor(props) {
         super(props);
         const Dates = new Date();
         this.state = {
-            Dates: Dates.getFullYear() + '/' + (Dates.getMonth() + 1 < 10 ? '0' : '') + (Dates.getMonth() + 1) + '/' + Dates.getDate(),
+            Dates: Dates.getFullYear() + '/' + (Dates.getMonth() + 1 < 10 ? '0' : '') + (Dates.getMonth() + 1) + '/' + (Dates.getDate() < 10 ? '0' : '') + Dates.getDate(),
             Hours: (Dates.getHours() < 10 ? '0' : '') + Dates.getHours(),
             Minutes: (Dates.getMinutes() < 10 ? '0' : '') + Dates.getMinutes(),
             isDateTimePickerVisible: false,
+            isDateTimePickerTimeVisible: false,
             DateTimePickerMode: 'date',
-            fromstation: '',
-            tostation: '',
+            fromstation: '1810',
+            tostation: '1809',
         }
 
-        this.SelectDate = this.SelectDate.bind(this);
         this.onPress = this.onPress.bind(this);
     }
 
-    SelectDate = () => this.setState({
-        isDateTimePickerVisible: true,
-        DateTimePickerMode: 'date'
-    })
-
-    SelectDateTime = () => this.setState({
-        isDateTimePickerVisible: true,
-        DateTimePickerMode: 'time'
-    })
-
-
     hideDateTimePicker = () => this.setState({
-        isDateTimePickerVisible: false
-    })
-
+        isDateTimePickerVisible: false,
+        isDateTimePickerTimeVisible: false
+    });
 
     handleDatePicked = (date) => {
         this.setState({
-            Dates: date.getFullYear() + "/" + (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1) + "/" + date.getDate(),
+            Dates: date.getFullYear() + "/" + (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1) + "/" + (date.getDate() < 10 ? '0' : '') + date.getDate(),
+        });
+        console.log(this.state.Dates);
+        this.hideDateTimePicker()
+    }
+
+    handleDatePickedTime = (date) => {
+        this.setState({
             Hours: (date.getHours() < 10 ? '0' : '') + date.getHours(),
             Minutes: (date.getMinutes() < 10 ? '0' : '') + date.getMinutes()
         });
-        console.log(this.state.Dates, this.state.Hours + ':' + this.state.Minutes);
+        console.log(this.state.Hours + ':' + this.state.Minutes);
         this.hideDateTimePicker()
     }
 
@@ -52,16 +49,32 @@ export default class Index extends Component {
         this.props.navigator.push({
             id: 1,
             params: {
-                SelectUrl: 'http://www.madashit.com/api/get-Tw-Railway?date=' + this.state.Dates + '&fromstation=1810&tostation=1809&fromtime=' + this.state.Hours + this.state.Minutes + '&totime=2359'
+                SelectUrl: 'http://www.madashit.com/api/get-Tw-Railway?date=' + this.state.Dates + '&fromstation=' + this.state.fromstation + '&tostation=' + this.state.tostation + '&fromtime=' + this.state.Hours + this.state.Minutes + '&totime=2359'
             }
         });
     }
 
     render() {
+        let index = 0;
+        const data = [{
+            key: index++,
+            label: 'Red'
+        }, {
+            key: index++,
+            label: 'Red1'
+        }, {
+            key: index++,
+            label: 'Red2'
+        }, {
+            key: index++,
+            label: 'Red3'
+        },]
         return (
             <View style={ styles.IndexView }>
-              <DateTimePicker isVisible={ this.state.isDateTimePickerVisible } is24Hour={ true } mode={ this.state.DateTimePickerMode } date={ new Date() } titleIOS="請選擇日期" cancelTextIOS="取消"
-                confirmTextIOS="確定" onConfirm={ this.handleDatePicked } onCancel={ this.hideDateTimePicker } />
+              <DateTimePicker isVisible={ this.state.isDateTimePickerVisible } is24Hour={ true } date={ new Date() } titleIOS="請選擇日期" cancelTextIOS="取消" confirmTextIOS="確定" onConfirm={ this.handleDatePicked }
+                onCancel={ this.hideDateTimePicker } />
+              <DateTimePickerTime isVisible={ this.state.isDateTimePickerTimeVisible } is24Hour={ true } mode='time' date={ new Date() } titleIOS="請選擇日期" cancelTextIOS="取消" confirmTextIOS="確定"
+                onConfirm={ this.handleDatePickedTime } onCancel={ this.hideDateTimePicker } />
               <View style={ styles.StatusBar }></View>
               <View style={ styles.IndexViewTitle }>
                 <Text style={ { fontSize: 20, color: '#fff' } }>臺鐵時刻表查詢</Text>
@@ -75,8 +88,8 @@ export default class Index extends Component {
                 </View>
                 <View style={ styles.SelectStopView }>
                   <Text style={ { fontSize: 17, color: '#2894ff', marginBottom: 10 } }>互換</Text>
-                  <Button style={ { width: 80, backgroundColor: '#fff', borderRadius: 3, borderColor: '#e0e0e0' } }>
-                    <Text>互換</Text>
+                  <Button style={ { width: 50, backgroundColor: '#fff', borderRadius: 3, borderColor: '#e0e0e0' } }>
+                    <Text>↔</Text>
                   </Button>
                 </View>
                 <View style={ styles.SelectStopView }>
@@ -91,14 +104,22 @@ export default class Index extends Component {
               </View>
               <View style={ styles.SelectStop }>
                 <View style={ styles.SelectStopView }>
-                  <Button style={ styles.SelectStopButton } onPress={ this.SelectDate }>
+                  <Button style={ styles.SelectStopButton } onPress={ () => {
+                                                                          this.setState({
+                                                                              isDateTimePickerVisible: true,
+                                                                          })
+                                                                      } }>
                     <Text>
                       { this.state.Dates }
                     </Text>
                   </Button>
                 </View>
                 <View style={ styles.SelectStopView }>
-                  <Button style={ styles.SelectStopButton } onPress={ this.SelectDateTime }>
+                  <Button style={ styles.SelectStopButton } onPress={ () => {
+                                                                          this.setState({
+                                                                              isDateTimePickerTimeVisible: true,
+                                                                          })
+                                                                      } }>
                     <Text>
                       { this.state.Hours }:
                       { this.state.Minutes }
@@ -119,7 +140,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     StatusBar: {
-        height: 20,
+        height: (Platform.OS === 'ios') ? 20 : 0,
         backgroundColor: '#2894ff',
     },
     IndexViewTitle: {
