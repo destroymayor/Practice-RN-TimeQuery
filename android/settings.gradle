@@ -1,0 +1,3 @@
+rootProject.name = 'Timequery'
+
+include ':app'
