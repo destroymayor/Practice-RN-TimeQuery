@@ -8,7 +8,6 @@ import Picker from 'react-native-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import StationCode from './StationCode';
 
-
 export default class Index extends Component {
     constructor(props) {
         super(props);
@@ -19,7 +18,6 @@ export default class Index extends Component {
             Minutes: (Dates.getMinutes() < 10 ? '0' : '') + Dates.getMinutes(),
             isDateTimePickerVisible: false,
             isDateTimePickerTimeVisible: false,
-            DateTimePickerMode: 'date',
             fromstationName: '【臺北】',
             tostationName: '【萬華】',
             fromstation: '1008',
@@ -42,7 +40,7 @@ export default class Index extends Component {
             Dates: date.getFullYear() + "/" + (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1) + "/" + (date.getDate() < 10 ? '0' : '') + date.getDate(),
         });
         console.log(this.state.Dates);
-        this.hideDateTimePicker()
+        this.hideDateTimePicker();
     }
 
     handleDatePickedTime = (date) => {
@@ -51,15 +49,15 @@ export default class Index extends Component {
             Minutes: (date.getMinutes() < 10 ? '0' : '') + date.getMinutes()
         });
         console.log(this.state.Hours + ':' + this.state.Minutes);
-        this.hideDateTimePicker()
+        this.hideDateTimePicker();
     }
 
     exchange() {
         this.setState({
-         fromstationName: this.state.tostationName,
-         fromstation: this.state.tostation,
-          tostationName: this.state.fromstationName,
-         tostation:this.state.fromstation
+            fromstationName: this.state.tostationName,
+            fromstation: this.state.tostation,
+            tostationName: this.state.fromstationName,
+            tostation: this.state.fromstation
         });
         console.log('互換後', '起=' + this.state.fromstationName, this.state.fromstation, '迄=' + this.state.tostationName, this.state.tostation);
     }
@@ -79,24 +77,22 @@ export default class Index extends Component {
     showPickerFromstation() {
         Picker.init({
             pickerData: StationCode,
-            selectedValue: [2, 1],
+            selectedValue: [1, 5],
             pickerConfirmBtnText: '確定',
             pickerCancelBtnText: '取消',
             pickerTitleText: '請選擇起站',
+            pickerToolBarFontSize: 18,
+            pickerFontSize: 18,
             pickerConfirmBtnColor: [49, 151, 252, 5],
             pickerCancelBtnColor: [49, 151, 252, 5],
             pickerToolBarBg: [230, 230, 230, 5],
             pickerBg: [0, 0, 0, 0],
             onPickerConfirm: data => {
-                console.log("起站",data[1].split('-', 1), data[1].slice(5));
+                console.log("起站", data[1].split('-', 1), data[1].slice(5));
                 this.setState({
                     fromstationName: data[1].slice(5),
                     fromstation: data[1].split('-', 1)
                 });
-            },
-            onPickerCancel: data => {
-            },
-            onPickerSelect: data => {
             }
         });
         Picker.show();
@@ -105,24 +101,22 @@ export default class Index extends Component {
     showPickertostation() {
         Picker.init({
             pickerData: StationCode,
-            selectedValue: [2, 1],
+            selectedValue: [1, 5],
             pickerConfirmBtnText: '確定',
             pickerCancelBtnText: '取消',
             pickerTitleText: '請選擇迄站',
+            pickerToolBarFontSize: 18,
+            pickerFontSize: 18,
             pickerConfirmBtnColor: [49, 151, 252, 5],
             pickerCancelBtnColor: [49, 151, 252, 5],
             pickerToolBarBg: [230, 230, 230, 5],
             pickerBg: [0, 0, 0, 0],
             onPickerConfirm: data => {
-                console.log("迄站",data[1].split('-', 1), data[1].slice(5));
+                console.log("迄站", data[1].split('-', 1), data[1].slice(5));
                 this.setState({
                     tostationName: data[1].slice(5),
                     tostation: data[1].split('-', 1)
                 });
-            },
-            onPickerCancel: data => {
-            },
-            onPickerSelect: data => {
             }
         });
         Picker.show();
@@ -150,8 +144,8 @@ export default class Index extends Component {
                 </View>
                 <View style={ styles.SelectStopView }>
                   <Text style={ { fontSize: 17, color: '#2894ff', marginBottom: 10 } }>互換</Text>
-                  <Button style={{ width: 50, backgroundColor: '#ffffff', borderRadius: 3, borderColor: '#ffffff' }} onPress={this.exchange}>
-                   <Icon name="refresh" size={20} color="#2894ff" />
+                  <Button style={ { width: 50, backgroundColor: '#ffffff', borderRadius: 3, borderColor: '#ffffff' } } onPress={ this.exchange }>
+                    <Icon name="refresh" size={ 20 } color="#2894ff" />
                   </Button>
                 </View>
                 <View style={ styles.SelectStopView }>
@@ -192,7 +186,7 @@ export default class Index extends Component {
                 </View>
               </View>
               <Button style={ styles.SelectButton } onPress={ this.onPress }>
-                <Text style={ { color: '#ffffff' } }>查詢</Text>
+                <Text style={ { color: '#ffffff', fontSize: 20 } }>查詢</Text>
               </Button>
             </View>
             );
@@ -213,7 +207,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         height: 55,
-        marginBottom:20
+        marginBottom: 20
     },
     SelectStop: {
         justifyContent: 'center',

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, StyleSheet, Platform, ListView, Text, View, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, BackAndroid, StyleSheet, Platform, ListView, Text, View, TouchableOpacity } from 'react-native';
 
 import Button from 'apsl-react-native-button';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -11,20 +11,31 @@ export default class SelectResult extends Component {
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 !== row2
             }),
-            isLoading: true
+            isLoading: true,
+            selecterr: ''
         }
         this.onPress = this.onPress.bind(this);
         this.HandlePressList = this.HandlePressList.bind(this);
+        this.HandleBack = this.HandleBack.bind(this);
     }
 
-    componentDidMount() {
+    componentWillMount() {
         this.setState({
             SelectUrl: this.props.SelectUrl,
             fromstationName: this.props.fromstationName,
-            tostationName:this.props.tostationName
+            tostationName: this.props.tostationName
         });
+        //console.log(this.props.SelectUrl);
         console.log(this.props.SelectUrl);
-        this.FetchData();
+    }
+
+    componentDidMount() {
+        BackAndroid.addEventListener('hardwareBackPress', this.HandleBack);
+        this.FetchData(this.props.SelectUrl);
+    }
+
+    componentWillUnmount() {
+        BackAndroid.removeEventListener('hardwareBackPress', this.HandleBack);
     }
 
     onPress() {
@@ -33,20 +44,47 @@ export default class SelectResult extends Component {
         });
     }
 
-    FetchData() {
-        fetch(this.props.SelectUrl).then((response) => response.json()).then((responseData) => {
-            if (responseData[0].Status) {
-                this.setState({
-                    dataSource: this.state.dataSource.cloneWithRows(responseData),
-                });
-            }
-            this.setState({
-                isLoading: false
+    HandleBack() {
+        const navigator = this.props;
+        if (navigator) {
+            this.props.navigator.pop({
+                id: 0
             });
-            console.log(responseData);
-        }).catch((error) => {
-            console.log('error', error);
+            return true
+        }
+        return false
+    }
+
+    async FetchData(url) {
+        const res = await fetch(url);
+        const json = await res.json();
+        const stars = json;
+        this.setState({
+            dataSource: this.state.dataSource.cloneWithRows(stars),
+            isLoading: false
         });
+    // fetch(url).then((response) => response.json()).then((responseData) => {
+    //     if (responseData[0].Status) {
+    //         this.setState({
+    //             dataSource: this.state.dataSource.cloneWithRows(responseData),
+    //         });
+    //     } else if (!responseData[0].Status) {
+    //         console.log(false);
+    //         this.setState({
+    //             selecterr: '查無列車資訊'
+    //         });
+    //     }
+    //     this.setState({
+    //         isLoading: false
+    //     });
+    //     console.log(responseData);
+    // }).catch((error) => {
+    //     console.log('error', error);
+    //     this.setState({
+    //         selecterr: 'error:' + error,
+    //         isLoading: false
+    //     });
+    // });
     }
 
     render() {
@@ -55,13 +93,17 @@ export default class SelectResult extends Component {
               <View style={ styles.StatusBar }></View>
               <View style={ styles.SelectResultViewTitle }>
                 <TouchableOpacity style={ styles.TouchableOpacity } onPress={ this.onPress }>
-                   <Icon name="arrow-left" size={20} color="#ffffff" />
+                  <Icon name="arrow-left" size={ 20 } color="#ffffff" />
                 </TouchableOpacity>
-                <ActivityIndicator animating={this.state.isLoading} color="#ff0000" />
-                <View style={styles.SelectResultViewTitleText}>    
-                <Text style={{color:'#fff',fontSize:20}}>{this.props.fromstationName}<Icon name="long-arrow-right" size={20} color="#ffffff" />{this.props.tostationName}</Text>
+                <ActivityIndicator animating={ this.state.isLoading } color="#ff0000" />
+                <View style={ styles.SelectResultViewTitleText }>
+                  <Text style={ { color: '#fff', fontSize: 20 } }>
+                    { this.props.fromstationName }
+                    <Icon name="long-arrow-right" size={ 20 } color="#ffffff" />
+                    { this.props.tostationName }
+                  </Text>
                 </View>
-                    </View>
+              </View>
               <ListView dataSource={ this.state.dataSource } renderRow={ this.renderRow } />
             </View>
             );
@@ -85,12 +127,12 @@ export default class SelectResult extends Component {
                 </View>
                 <View style={ { flex: 1, alignItems: 'center', justifyContent: 'center' } }>
                   <Text style={ { color: '#000000', fontSize: 20 } }>
-                     {timeput}
-                  <Icon name="long-arrow-right" size={20} color="#000000" />        
-                    {timeout}          
+                    { timeput }
+                    <Icon name="long-arrow-right" size={ 20 } color="#000000" />
+                    { timeout }
                   </Text>
                   <Text style={ { color: '#7c7c7c', fontSize: 16 } }>
-                      { msg.行駛時間 }
+                    { msg.行駛時間 }
                   </Text>
                 </View>
                 <View style={ { flex: 0.5, alignItems: 'flex-end', justifyContent: 'center' } }>
@@ -131,7 +173,7 @@ const styles = StyleSheet.create({
     SelectResultViewTitleText: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginLeft:20
+        marginLeft: 20
     },
     ListItems: {
         backgroundColor: '#fcfcfc',
