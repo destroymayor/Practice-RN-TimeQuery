@@ -3,6 +3,7 @@ import { ActivityIndicator, BackAndroid, StyleSheet, Platform, ListView, Text, V
 
 import Button from 'apsl-react-native-button';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Toasts from './component/Toast';
 
 export default class SelectResult extends Component {
     constructor(props) {
@@ -11,11 +12,9 @@ export default class SelectResult extends Component {
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 !== row2
             }),
-            isLoading: true,
-            selecterr: ''
+            isLoading: true
         }
         this.onPress = this.onPress.bind(this);
-        this.HandlePressList = this.HandlePressList.bind(this);
         this.HandleBack = this.HandleBack.bind(this);
     }
 
@@ -56,35 +55,26 @@ export default class SelectResult extends Component {
     }
 
     async FetchData(url) {
-        const res = await fetch(url);
-        const json = await res.json();
-        const stars = json;
-        this.setState({
-            dataSource: this.state.dataSource.cloneWithRows(stars),
-            isLoading: false
-        });
-    // fetch(url).then((response) => response.json()).then((responseData) => {
-    //     if (responseData[0].Status) {
-    //         this.setState({
-    //             dataSource: this.state.dataSource.cloneWithRows(responseData),
-    //         });
-    //     } else if (!responseData[0].Status) {
-    //         console.log(false);
-    //         this.setState({
-    //             selecterr: '查無列車資訊'
-    //         });
-    //     }
-    //     this.setState({
-    //         isLoading: false
-    //     });
-    //     console.log(responseData);
-    // }).catch((error) => {
-    //     console.log('error', error);
-    //     this.setState({
-    //         selecterr: 'error:' + error,
-    //         isLoading: false
-    //     });
-    // });
+        try {
+            let res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then((response) => response.json()).catch((e) => {
+                Toasts(error);
+                console.log('fetch error', e);
+            });
+            this.setState({
+                dataSource: this.state.dataSource.cloneWithRows(res),
+                isLoading: false
+            });
+            console.log('data=', res.length);
+        } catch (error) {
+            Toasts(error);
+            console.log('error', error);
+        }
     }
 
     render() {
@@ -104,24 +94,96 @@ export default class SelectResult extends Component {
                   </Text>
                 </View>
               </View>
-              <ListView dataSource={ this.state.dataSource } renderRow={ this.renderRow } />
-            </View>
-            );
+              <ListView dataSource={ this.state.dataSource } renderRow={ this.renderRow.bind(this) } />
+            </View>);
     }
 
     renderRow(msg) {
-        let timeput = `${msg.開車時間}  `;
-        let timeout = `  ${msg.到達時間}`;
+        let timeput = `${msg.OriginStopTime.ArrivalTime}  `;
+        let timeout = `  ${msg.DestinationStopTime.DepartureTime}`;
+        let TrainClassificationID = null;
+
+        switch (msg.DailyTrainInfo.TrainClassificationID) {
+            case '1111': {
+                TrainClassificationID = '莒光號';
+                break;
+            }
+            case '1112': {
+                TrainClassificationID = '莒光號';
+                break;
+            }
+            case '1113': {
+                TrainClassificationID = '莒光號';
+                break;
+            }
+            case '1114': {
+                TrainClassificationID = '莒光號';
+                break;
+            }
+            case '1115': {
+                TrainClassificationID = '莒光號';
+                break;
+            }
+            case '1110': {
+                TrainClassificationID = '莒光號';
+                break;
+            }
+            case '1104': {
+                TrainClassificationID = '自強號';
+                break;
+            }
+            case '1106': {
+                TrainClassificationID = '自強號';
+                break;
+            }
+            case '1108': {
+                TrainClassificationID = '自強號';
+                break;
+            }
+            case '1100': {
+                TrainClassificationID = '自強號';
+                break;
+            }
+            case '1101': {
+                TrainClassificationID = '自強號';
+                break;
+            }
+            case '1102': {
+                TrainClassificationID = '自強號';
+                break;
+            }
+            case '1120': {
+                TrainClassificationID = '復興號';
+                break;
+            }
+            case '1107': {
+                TrainClassificationID = '普悠瑪號';
+                break;
+            }
+            case '1131': {
+                TrainClassificationID = '區間車';
+                break;
+            }
+            case '1132': {
+                TrainClassificationID = '區間車(快)';
+                break;
+            }
+            case '1140': {
+                TrainClassificationID = '區間車';
+                break;
+            }
+        }
+
         return (
-            <TouchableOpacity style={ styles.ListItems } onPress={ this.HandlePressList }>
+            <TouchableOpacity style={ styles.ListItems } onPress={ this.HandlePressList.bind(this, msg) }>
               <View style={ styles.ResultViewContent }>
                 <View style={ { flex: 0.5, alignItems: 'flex-start', justifyContent: 'center', paddingLeft: 15 } }>
                   <View style={ { flex: 0.5, alignItems: 'center', justifyContent: 'center' } }>
-                    <Text style={ { color: msg.車種 == '區間車' ? '#7c7c7c' : '#ff5809', fontSize: 20 } }>
-                      { msg.車種 }
+                    <Text style={ { color: TrainClassificationID == '區間車' ? '#7c7c7c' : '#ff5809', fontSize: 16, paddingTop: 3 } }>
+                      { TrainClassificationID }
                     </Text>
-                    <Text style={ { color: msg.車種 == '區間車' ? '#7c7c7c' : '#ff5809', fontSize: 16, paddingTop: 3 } }>
-                      { msg.車次 }
+                    <Text style={ { color: TrainClassificationID == '區間車' ? '#7c7c7c' : '#ff5809', fontSize: 16, paddingTop: 3 } }>
+                      { msg.DailyTrainInfo.TrainNo }
                     </Text>
                   </View>
                 </View>
@@ -131,22 +193,15 @@ export default class SelectResult extends Component {
                     <Icon name="long-arrow-right" size={ 20 } color="#000000" />
                     { timeout }
                   </Text>
-                  <Text style={ { color: '#7c7c7c', fontSize: 16 } }>
-                    { msg.行駛時間 }
-                  </Text>
                 </View>
                 <View style={ { flex: 0.5, alignItems: 'flex-end', justifyContent: 'center' } }>
-                  <Text style={ { color: '#ff5809', fontSize: 16 } }>
-                    $
-                    { msg.票價 }
-                  </Text>
                 </View>
               </View>
             </TouchableOpacity>);
     }
 
     HandlePressList(msg) {
-        console.log(msg);
+        console.log('車次', msg.DailyTrainInfo.TrainNo);
     }
 
 }

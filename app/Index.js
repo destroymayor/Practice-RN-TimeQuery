@@ -13,7 +13,7 @@ export default class Index extends Component {
         super(props);
         const Dates = new Date();
         this.state = {
-            Dates: Dates.getFullYear() + '/' + (Dates.getMonth() + 1 < 10 ? '0' : '') + (Dates.getMonth() + 1) + '/' + (Dates.getDate() < 10 ? '0' : '') + Dates.getDate(),
+            Dates: Dates.getFullYear() + '-' + (Dates.getMonth() + 1 < 10 ? '0' : '') + (Dates.getMonth() + 1) + '-' + (Dates.getDate() < 10 ? '0' : '') + Dates.getDate(),
             Hours: (Dates.getHours() < 10 ? '0' : '') + Dates.getHours(),
             Minutes: (Dates.getMinutes() < 10 ? '0' : '') + Dates.getMinutes(),
             isDateTimePickerVisible: false,
@@ -37,7 +37,7 @@ export default class Index extends Component {
 
     handleDatePicked = (date) => {
         this.setState({
-            Dates: date.getFullYear() + "/" + (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1) + "/" + (date.getDate() < 10 ? '0' : '') + date.getDate(),
+            Dates: date.getFullYear() + "-" + (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1) + "-" + (date.getDate() < 10 ? '0' : '') + date.getDate(),
         });
         console.log(this.state.Dates);
         this.hideDateTimePicker();
@@ -63,16 +63,19 @@ export default class Index extends Component {
     }
 
     onPress() {
+        const url = 'http://ptx.transportdata.tw/MOTC/v2/Rail/TRA/DailyTimetable/OD/' + this.state.fromstation + '/to/' + this.state.tostation + '/' + this.state.Dates + '?$format=JSON'
         this.props.navigator.push({
             id: 1,
             params: {
-                SelectUrl: 'http://www.madashit.com/api/get-Tw-Railway?date=' + this.state.Dates + '&fromstation=' + this.state.fromstation + '&tostation=' + this.state.tostation + '&fromtime=' + this.state.Hours + this.state.Minutes + '&totime=2359',
+                SelectUrl: url,
                 fromstationName: this.state.fromstationName,
                 tostationName: this.state.tostationName
             }
         });
         Picker.hide();
     }
+
+
 
     showPickerFromstation() {
         Picker.init({
@@ -144,7 +147,7 @@ export default class Index extends Component {
                 </View>
                 <View style={ styles.SelectStopView }>
                   <Text style={ { fontSize: 17, color: '#2894ff', marginBottom: 10 } }>互換</Text>
-                  <Button style={ { width: 50, backgroundColor: '#ffffff', borderRadius: 3, borderColor: '#ffffff' } } onPress={ this.exchange }>
+                  <Button style={ { width: 50, borderRadius: 3, borderColor: '#fcfcfc' } } onPress={ this.exchange }>
                     <Icon name="refresh" size={ 20 } color="#2894ff" />
                   </Button>
                 </View>
